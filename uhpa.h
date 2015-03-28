@@ -105,7 +105,7 @@
 		:-1)
 
 #define UHPA_FREE(u, size) \
-	if((size) > sizeof((u).array)){ \
+	if((size) > sizeof((u).array) && (u).ptr){ \
 		uhpa_free((u).ptr); \
 		(u).ptr = NULL; \
 	} 
