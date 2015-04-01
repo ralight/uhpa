@@ -81,6 +81,14 @@
  * UHPA_FREE_STR(u, size)
  *		
  * =============================================================================
+ * Forcing use of malloc
+ * =============================================================================
+ *
+ * If you wish to force the use of malloc without removing the UHPA macros from
+ * your code (i.e. the macros will never use the array part of the union) then
+ * #define UHPA_FORCE_MALLOC before including this file.
+ *
+ * =============================================================================
  * Memory Functions
  * =============================================================================
  *
@@ -97,18 +105,28 @@
 #	define uhpa_free(ptr) free(ptr)
 #endif
 
-#define UHPA_ACCESS(u, size) ((size) > sizeof((u).array)?(u).ptr:(u).array)
-
-#define UHPA_ALLOC(u, size) \
+#define UHPA_ALLOC_CHK(u, size) \
 	((size) > sizeof((u).array)? \
 		(((u).ptr = uhpa_malloc((size)))?1:0) \
 		:-1)
 
-#define UHPA_FREE(u, size) \
+#define UHPA_ACCESS_CHK(u, size) ((size) > sizeof((u).array)?(u).ptr:(u).array)
+
+#define UHPA_FREE_CHK(u, size) \
 	if((size) > sizeof((u).array) && (u).ptr){ \
 		uhpa_free((u).ptr); \
 		(u).ptr = NULL; \
 	} 
+
+#ifdef UHPA_FORCE_MALLOC
+#  define UHPA_ALLOC(u, size) ((u).ptr = uhpa_malloc(size))
+#  define UHPA_ACCESS(u, size) (u).ptr
+#  define UHPA_FREE(u, size) uhpa_free((u).ptr); (u).ptr = NULL;
+#else
+#  define UHPA_ALLOC(u, size) UHPA_ALLOC_CHK(u, size)
+#  define UHPA_ACCESS(u, size) UHPA_ACCESS_CHK(u, size)
+#  define UHPA_FREE(u, size) UHPA_FREE_CHK(u, size)
+#endif
 
 #define UHPA_ALLOC_STR(u, size) UHPA_ALLOC((u), (size)+1)
 #define UHPA_ACCESS_STR(u, size) ((char *)UHPA_ACCESS((u), (size)+1))
