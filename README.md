@@ -32,6 +32,17 @@ do not want to "waste" any memory per item - with the tradeoff that calls to
 malloc will be more frequent because `MAX_ARRAY_SIZE` will only be 4 or 8
 bytes, depending on your architecture.
 
+
+Overhead
+--------
+
+The overhead associated with using UHPA on a 64-bit Linux system is shown in
+the image below, for varying `MAX_ARRAY_SIZE` and requested memory sizes. The
+bottom left quadrant shows the region of memory used as an array, and the top
+right shows the region when heap memory allocation is required.
+![Image of overhead](uhpa_overhead.png)
+
+
 Core Functions
 --------------
 
