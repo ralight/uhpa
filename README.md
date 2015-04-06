@@ -33,13 +33,31 @@ malloc will be more frequent because `MAX_ARRAY_SIZE` will only be 4 or 8
 bytes, depending on your architecture.
 
 
-Overhead
---------
+Choosing the array size
+-----------------------
 
-The overhead associated with using UHPA on a 64-bit Linux system is shown in
-the image below, for varying `MAX_ARRAY_SIZE` and requested memory sizes. The
-bottom left quadrant shows the region of memory used as an array, and the top
-right shows the region when heap memory allocation is required.
+There are three options for choosing the array size:
+
+* `== sizeof(void *)` : no overhead with either array or heap usage.
+* `< sizeof(void *)` : basically pointless, guaranteed memory overhead when using array.
+* `> sizeof(void *)` : memory overhead will occur when using heap allocation.
+
+The latter choice is the most interesting to consider. Increasing the size of
+the array will reduce calls to malloc because more cases of memory usage will
+be covered by the array, but when a request exceeds the available memory in the
+array then space is wasted. For example, if the array size is set to 10 and
+sizeof(void\*) is 8, then the UHPA data type will be 10 bytes long and so
+requests of up to 10 bytes will use the array. A request of 11 bytes will
+require heap allocation and so the UHPA data type will be treated as a pointer.
+This means that of the 10 bytes of UHPA data type, only 8 will actually be in
+use, as the pointer. The remaining 2 bytes are overhead. Using a longer array
+size exacerbates this problem.
+
+The per allocation overhead associated with using UHPA on a 64-bit Linux system
+is shown in the image below, for varying `MAX_ARRAY_SIZE` and requested memory
+sizes. The bottom left quadrant shows the region of memory used as an array,
+and the top right shows the region when heap memory allocation is required.
+
 ![Image of overhead](uhpa_overhead.png)
 
 
