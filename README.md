@@ -61,6 +61,41 @@ and the top right shows the region when heap memory allocation is required.
 ![Image of overhead](uhpa_overhead.png)
 
 
+Profiling example
+-----------------
+
+The profile directory contains a program that attempts to allow you to carry
+out crude profiling of UHPA using e.g. callgrind. It also contains some example
+data which is an array of sizes of data to be allocated. This data was
+collected from the mosquitto broker instance running at test.mosquitto.org,
+then placed in random order. If you wish to use UHPA for your own use, getting
+your own data is recommended.
+
+The image below shows the result of compiling this program with array size from
+1-50, then running the result through callgrind and recording the instruction
+count. For reference, it also includes a histogram of the data lengths used
+when allocating. The instruction count drops rapidly for even small array
+sizes, then hits a plateau. It is clear that in this example the length of data
+used has a strong influence.  
+
+![Image of instruction count and allocation length histogram](instr.png)
+
+The image below shows a plot of the expected total memory used for the same
+test for different UHPA array sizes, and a plot of the expected total memory
+used if only heap allocation is used, both based on a current Linux 64-bit architecture.
+
+Taking the results from both plots, if minimising memory usage is the aim then
+selecting a UHPA array size of 8 bytes is best. If saving instruction cycles is
+more important then a UHPA array size of 16 bytes gives better performance
+whilst only incurring a small memory penalty compared to 8 bytes. Choosing a
+large array size of 50 bytes gives the lowest instruction count in this
+example, but does so at the expense of around 50% increase in memory usage for
+only a fractional improvement in instruction count.
+
+![Image of memory usage](memory.png)
+
+
+
 Core Functions
 --------------
 
